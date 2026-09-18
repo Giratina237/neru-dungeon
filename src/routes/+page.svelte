@@ -131,7 +131,7 @@
 <main
 	class="min-h-screen bg-background-100 p-8 font-mono text-foreground-600"
 >
-	<div class="mx-auto flex max-w-2xl flex-col gap-10">
+	<div class="mx-auto flex max-w-3xl flex-col gap-10">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-4">
 				<img src={asset('/neru-dungeon-appicon.png')} alt="neru-dungeon logo" class="h-12 w-12 rounded-xl" />
@@ -241,22 +241,67 @@
 
 		<!-- Lesson list -->
 		{#if isValid && groups.length > 0}
-			<div class="flex flex-col gap-8">
+			<div class="flex flex-col gap-10">
 				{#each groups as group (group.name)}
-					<div class="flex flex-col gap-2">
-						<span class="text-lg text-foreground-400">{group.name}</span>
-						{#each group.items as lesson (lesson.id)}
-							<button
-								type="button"
-								onclick={() => startLesson(lesson.id)}
-								class="flex items-center justify-between border-2 border-foreground-600 px-6 py-4 text-left text-xl outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
-							>
-								<span>{lesson.label}</span>
-								<span class="text-lg text-foreground-400 group-hover:text-background-100">
-									{sequenceCount(lesson)} seq
-								</span>
-							</button>
-						{/each}
+					<div class="flex flex-col gap-4">
+						<div class="flex items-baseline justify-between border-b-2 border-foreground-600 pb-2">
+							<h3 class="text-3xl font-bold capitalize">{group.name}</h3>
+							<span class="text-sm text-foreground-400">
+								{group.items.length} {group.items.length === 1 ? 'lesson' : 'lessons'}
+							</span>
+						</div>
+						<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+							{#each group.items as lesson (lesson.id)}
+								<button
+									type="button"
+									onclick={() => startLesson(lesson.id)}
+									class="group relative flex flex-col justify-between border-2 border-foreground-600 bg-background-100 p-4 text-left outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600 min-h-[140px] sm:min-h-[160px] transition-colors"
+								>
+									<!-- Card Header: Lesson Number & Seq Count -->
+									<div class="flex items-start justify-between w-full">
+										<span class="text-2xl font-bold leading-none">{lesson.index + 1}</span>
+										<span class="text-xs text-foreground-400 group-hover:text-background-100/80">
+											{sequenceCount(lesson)} seq
+										</span>
+									</div>
+
+									<!-- Card Center: Focal Point -->
+									<div class="flex flex-col items-center justify-center my-3 text-center">
+										{#if lesson.kind === 'intro'}
+											<span class="text-3xl sm:text-4xl font-black tracking-wider leading-none">
+												{lesson.keys.join(' ')}
+											</span>
+										{:else if lesson.kind === 'row'}
+											<span class="text-2xl sm:text-3xl font-black tracking-widest leading-none">
+												ALL
+											</span>
+											<span class="text-[11px] opacity-75 mt-1 tracking-wider">
+												{lesson.keys.join(' ')}
+											</span>
+										{:else if lesson.kind === 'column'}
+											<span class="text-2xl sm:text-3xl font-black tracking-wider leading-none">
+												COL {lesson.id.replace('c', '') !== '' ? parseInt(lesson.id.replace('c', '')) + 1 : ''}
+											</span>
+											<span class="text-[11px] opacity-75 mt-1 tracking-wider">
+												{lesson.keys.join(' ')}
+											</span>
+										{:else}
+											<span class="text-2xl sm:text-3xl font-black tracking-wider leading-none">
+												GRID
+											</span>
+											<span class="text-[11px] opacity-75 mt-1 tracking-wider">
+												all keys
+											</span>
+										{/if}
+									</div>
+
+									<!-- Card Footer: Label -->
+									<div class="border-t border-foreground-600/30 group-hover:border-background-100/30 pt-2 text-center text-xs font-medium truncate w-full">
+										{lesson.label}
+									</div>
+								</button>
+							{/each}
+						</div>
 					</div>
 				{/each}
 			</div>
