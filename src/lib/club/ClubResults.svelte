@@ -112,5 +112,11 @@
 				</button>
 			{/if}
 		</div>
+
+		<!-- Credits -->
+		<div class="flex items-center justify-between pt-2 text-xs text-foreground-400">
+			<span>inspired by neru dojo</span>
+			<span>made by giratina</span>
+		</div>
 	</div>
 </div>

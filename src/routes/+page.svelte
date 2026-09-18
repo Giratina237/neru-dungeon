@@ -299,5 +299,11 @@
 				/>
 			{/if}
 		</div>
+
+		<!-- Credits -->
+		<footer class="flex items-center justify-between border-t-2 border-foreground-600 pt-6 text-sm text-foreground-400">
+			<span>inspired by neru dojo</span>
+			<span>made by giratina</span>
+		</footer>
 	</div>
 </main>
