@@ -27,7 +27,7 @@
 	let sequences = $state<Sequence[]>([]);
 	let ready = $state(false);
 
-	let segment = $state<Segment>('guided');
+	let segment = $state<Segment>('recall');
 	let taskIndex = $state(0);
 	let inputKeys = $state<string[]>([]);
 	let done = $state(false);

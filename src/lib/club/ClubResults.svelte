@@ -9,7 +9,7 @@
 		result,
 		config,
 		keySummaries,
-		segment = 'guided',
+		segment = 'recall',
 		onRestart,
 		onStartRecall,
 		onStartReview,

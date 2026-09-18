@@ -10,7 +10,7 @@ export const DEFAULT_CONFIG: GridConfig = {
 
 export const CONFIG_STORAGE_KEY = 'neru-dungeon-config';
 export const LEGACY_CONFIG_STORAGE_KEY = 'neru-club-config';
-export const MODE_STORAGE_KEY = 'neru-dungeon-mode';
+export const MODE_STORAGE_KEY = 'neru-dungeon-segment-mode';
 
 export type RegionPercent = {
 	top: number;
