@@ -243,63 +243,112 @@
 		{#if isValid && groups.length > 0}
 			<div class="flex flex-col gap-10">
 				{#each groups as group (group.name)}
+					{@const isGridPractice = group.name === 'grid practice'}
 					<div class="flex flex-col gap-4">
-						<div class="flex items-baseline justify-between border-b-2 border-foreground-600 pb-2">
-							<h3 class="text-3xl font-bold capitalize">{group.name}</h3>
+						<div
+							class="flex items-baseline justify-between border-b-2 pb-2"
+							class:border-highlight-600={isGridPractice}
+							class:border-foreground-600={!isGridPractice}
+						>
+							<div class="flex items-center gap-3">
+								<h3
+									class="text-3xl font-bold capitalize"
+									class:text-highlight-600={isGridPractice}
+								>
+									{group.name}
+								</h3>
+								{#if isGridPractice}
+									<span class="border-2 border-highlight-600 bg-highlight-500/10 px-2.5 py-0.5 text-xs font-bold text-highlight-600 uppercase tracking-wider">
+										main drill
+									</span>
+								{/if}
+							</div>
 							<span class="text-sm text-foreground-400">
-								{group.items.length} {group.items.length === 1 ? 'lesson' : 'lessons'}
+								{isGridPractice ? `all ${config.keys.length} keys` : `${group.items.length} ${group.items.length === 1 ? 'lesson' : 'lessons'}`}
 							</span>
 						</div>
 						<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
 							{#each group.items as lesson (lesson.id)}
-								<button
-									type="button"
-									onclick={() => startLesson(lesson.id)}
-									class="group relative flex flex-col justify-between border-2 border-foreground-600 bg-background-100 p-4 text-left outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600 min-h-[140px] sm:min-h-[160px] transition-colors"
-								>
-									<!-- Card Header: Lesson Number & Seq Count -->
-									<div class="flex items-start justify-between w-full">
-										<span class="text-2xl font-bold leading-none">{lesson.index + 1}</span>
-										<span class="text-xs text-foreground-400 group-hover:text-background-100/80">
-											{sequenceCount(lesson)} seq
-										</span>
-									</div>
+								{#if lesson.kind === 'grid'}
+									<button
+										type="button"
+										onclick={() => startLesson(lesson.id)}
+										class="group relative col-span-full sm:col-span-2 md:col-span-2 flex flex-col justify-between border-2 border-highlight-600 bg-background-100 p-5 text-left outline-none hover:bg-highlight-500 hover:text-background-100 focus-visible:border-foreground-600 min-h-[160px] transition-colors shadow-sm cursor-pointer"
+									>
+										<!-- Card Header: Lesson Number & Badge & Seq Count -->
+										<div class="flex items-start justify-between w-full">
+											<span class="text-3xl font-black leading-none text-highlight-600 group-hover:text-background-100">
+												{lesson.index + 1}
+											</span>
+											<div class="flex items-center gap-2">
+												<span class="border border-current px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider">
+													records history
+												</span>
+												<span class="text-xs font-medium opacity-80">
+													{sequenceCount(lesson)} seq
+												</span>
+											</div>
+										</div>
 
-									<!-- Card Center: Focal Point -->
-									<div class="flex flex-col items-center justify-center my-3 text-center">
-										{#if lesson.kind === 'intro'}
-											<span class="text-3xl sm:text-4xl font-black tracking-wider leading-none">
-												{lesson.keys.join(' ')}
+										<!-- Card Center: Focal Point -->
+										<div class="flex flex-col items-center justify-center my-3 text-center">
+											<span class="text-3xl sm:text-4xl font-black tracking-widest leading-none text-highlight-600 group-hover:text-background-100">
+												COMPLETE GRID
 											</span>
-										{:else if lesson.kind === 'row'}
-											<span class="text-2xl sm:text-3xl font-black tracking-widest leading-none">
-												ALL
+											<span class="text-xs opacity-80 mt-1.5 tracking-wider">
+												all {config.keys.length} keys · full board recall
 											</span>
-											<span class="text-[11px] opacity-75 mt-1 tracking-wider">
-												{lesson.keys.join(' ')}
-											</span>
-										{:else if lesson.kind === 'column'}
-											<span class="text-2xl sm:text-3xl font-black tracking-wider leading-none">
-												COL {lesson.id.replace('c', '') !== '' ? parseInt(lesson.id.replace('c', '')) + 1 : ''}
-											</span>
-											<span class="text-[11px] opacity-75 mt-1 tracking-wider">
-												{lesson.keys.join(' ')}
-											</span>
-										{:else}
-											<span class="text-2xl sm:text-3xl font-black tracking-wider leading-none">
-												GRID
-											</span>
-											<span class="text-[11px] opacity-75 mt-1 tracking-wider">
-												all keys
-											</span>
-										{/if}
-									</div>
+										</div>
 
-									<!-- Card Footer: Label -->
-									<div class="border-t border-foreground-600/30 group-hover:border-background-100/30 pt-2 text-center text-xs font-medium truncate w-full">
-										{lesson.label}
-									</div>
-								</button>
+										<!-- Card Footer -->
+										<div class="border-t border-highlight-600/30 group-hover:border-background-100/30 pt-2 flex items-center justify-between text-xs font-semibold w-full">
+											<span>all rows &amp; columns</span>
+											<span class="underline group-hover:no-underline font-bold">start drill →</span>
+										</div>
+									</button>
+								{:else}
+									<button
+										type="button"
+										onclick={() => startLesson(lesson.id)}
+										class="group relative flex flex-col justify-between border-2 border-foreground-600 bg-background-100 p-4 text-left outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600 min-h-[140px] sm:min-h-[160px] transition-colors"
+									>
+										<!-- Card Header: Lesson Number & Seq Count -->
+										<div class="flex items-start justify-between w-full">
+											<span class="text-2xl font-bold leading-none">{lesson.index + 1}</span>
+											<span class="text-xs text-foreground-400 group-hover:text-background-100/80">
+												{sequenceCount(lesson)} seq
+											</span>
+										</div>
+
+										<!-- Card Center: Focal Point -->
+										<div class="flex flex-col items-center justify-center my-3 text-center">
+											{#if lesson.kind === 'intro'}
+												<span class="text-3xl sm:text-4xl font-black tracking-wider leading-none">
+													{lesson.keys.join(' ')}
+												</span>
+											{:else if lesson.kind === 'row'}
+												<span class="text-2xl sm:text-3xl font-black tracking-widest leading-none">
+													ALL
+												</span>
+												<span class="text-[11px] opacity-75 mt-1 tracking-wider">
+													{lesson.keys.join(' ')}
+												</span>
+											{:else if lesson.kind === 'column'}
+												<span class="text-2xl sm:text-3xl font-black tracking-wider leading-none">
+													COL {lesson.id.replace('c', '') !== '' ? parseInt(lesson.id.replace('c', '')) + 1 : ''}
+												</span>
+												<span class="text-[11px] opacity-75 mt-1 tracking-wider">
+													{lesson.keys.join(' ')}
+												</span>
+											{/if}
+										</div>
+
+										<!-- Card Footer: Label -->
+										<div class="border-t border-foreground-600/30 group-hover:border-background-100/30 pt-2 text-center text-xs font-medium truncate w-full">
+											{lesson.label}
+										</div>
+									</button>
+								{/if}
 							{/each}
 						</div>
 					</div>

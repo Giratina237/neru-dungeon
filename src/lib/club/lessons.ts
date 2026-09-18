@@ -85,7 +85,13 @@ export function buildLessonList(config: GridConfig): LessonDef[] {
 		}
 	}
 
-	// Complete grid
+	// Column lessons (one per column, no per-key intro)
+	for (let c = 0; c < config.cols; c++) {
+		const keys = colKeys(c);
+		lessons.push({ id: `c${c}`, label: `column ${c + 1}`, group: 'columns', kind: 'column', keys });
+	}
+
+	// Complete grid (after columns, above key history)
 	lessons.push({
 		id: 'complete',
 		label: 'complete grid',
@@ -93,12 +99,6 @@ export function buildLessonList(config: GridConfig): LessonDef[] {
 		kind: 'grid',
 		keys: [...u],
 	});
-
-	// Column lessons (one per column, no per-key intro)
-	for (let c = 0; c < config.cols; c++) {
-		const keys = colKeys(c);
-		lessons.push({ id: `c${c}`, label: `column ${c + 1}`, group: 'columns', kind: 'column', keys });
-	}
 
 	return lessons;
 }
