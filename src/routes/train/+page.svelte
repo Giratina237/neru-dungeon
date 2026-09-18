@@ -53,6 +53,30 @@
 
 	let isDoubleWordTest = $derived(lesson?.kind === 'intro');
 
+	type Region = { top: number; left: number; width: number; height: number };
+
+	function isSameRegion(r1: Region | null, r2: Region | null): boolean {
+		if (!r1 || !r2) return false;
+		return (
+			Math.abs(r1.top - r2.top) < 0.001 &&
+			Math.abs(r1.left - r2.left) < 0.001 &&
+			Math.abs(r1.width - r2.width) < 0.001 &&
+			Math.abs(r1.height - r2.height) < 0.001
+		);
+	}
+
+	function getTargetRegion(tIndex: number, inKeys: string[]): Region | null {
+		if (sequences.length === 0 || tIndex >= sequences.length) return null;
+		const seq = sequences[tIndex];
+		if (!seq || seq.length === 0) return null;
+		const activeSeq = isDoubleWordTest
+			? [seq[inKeys.length] ?? seq[0] ?? '']
+			: seq;
+		return computeRegion(config, activeSeq);
+	}
+
+	let lastTargetRegion: Region | null = null;
+
 	function setSegment(newSegment: Segment) {
 		segment = newSegment;
 		if (typeof window !== 'undefined') {
@@ -94,6 +118,7 @@
 			};
 			sequences = buildSessionSequences(lesson, config);
 			ready = true;
+			lastTargetRegion = getTargetRegion(0, []);
 		} else {
 			const list = buildLessonList(config);
 			const found = list.find((l) => l.id === lessonId);
@@ -102,6 +127,7 @@
 			lesson = found;
 			sequences = buildSessionSequences(found, config);
 			ready = true;
+			lastTargetRegion = getTargetRegion(0, []);
 		}
 
 		const now = performance.now();
@@ -155,46 +181,38 @@
 		const reactionTimeMs = Math.max(1, now - (keyStartTime || taskStartTime || now));
 
 		if (key === expected) {
-			// Check if key target location is identical to previous location
-			const prevInput = [...inputKeys];
 			const nextInput = [...inputKeys, key];
-
-			// Only detect same position when transitioning inside sequence or double-word test
-			if (prevInput.length > 0) {
-				const prevRegion = computeRegion(
-					config,
-					isDoubleWordTest ? [prevInput[prevInput.length - 1]] : prevInput,
-				);
-				const nextRegion = computeRegion(
-					config,
-					isDoubleWordTest ? [key] : nextInput,
-				);
-				if (
-					Math.abs(prevRegion.top - nextRegion.top) < 0.001 &&
-					Math.abs(prevRegion.left - nextRegion.left) < 0.001 &&
-					Math.abs(prevRegion.width - nextRegion.width) < 0.001 &&
-					Math.abs(prevRegion.height - nextRegion.height) < 0.001
-				) {
-					reflashKey += 1;
-				}
-			}
-
 			keyAttempts.push({ key, reactionTimeMs, correct: true });
 			correctPresses++;
-			inputKeys = nextInput;
 			keyStartTime = now;
 
-			if (inputKeys.length === currentSeq.length) {
+			if (nextInput.length === currentSeq.length) {
 				wordDurations.push(now - taskStartTime);
 				const nextTask = taskIndex + 1;
 				if (nextTask >= total) {
 					finishSession();
 				} else {
+					// Check if next task's target is in the exact same location as previous target
+					const nextRegion = getTargetRegion(nextTask, []);
+					if (isSameRegion(lastTargetRegion, nextRegion)) {
+						reflashKey += 1;
+					}
+					lastTargetRegion = nextRegion;
+
 					taskIndex = nextTask;
 					inputKeys = [];
 					taskStartTime = performance.now();
 					keyStartTime = taskStartTime;
 				}
+			} else {
+				// Intermediate key inside the sequence (e.g. in intro lessons)
+				const nextRegion = getTargetRegion(taskIndex, nextInput);
+				if (isSameRegion(lastTargetRegion, nextRegion)) {
+					reflashKey += 1;
+				}
+				lastTargetRegion = nextRegion;
+
+				inputKeys = nextInput;
 			}
 		} else {
 			mistakeKey += 1;
@@ -268,6 +286,7 @@
 		wordDurations = [];
 		keyAttempts = [];
 		sessionResult = null;
+		lastTargetRegion = getTargetRegion(0, []);
 
 		const now = performance.now();
 		taskStartTime = now;

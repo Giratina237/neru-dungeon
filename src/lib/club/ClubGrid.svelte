@@ -90,16 +90,25 @@
 	@keyframes reflash {
 		0% {
 			opacity: 0;
+			transform: scale(0.95);
 		}
-		50% {
+		35% {
 			opacity: 0;
+			transform: scale(0.95);
+		}
+		70% {
+			opacity: 1;
+			filter: brightness(1.7);
+			transform: scale(1);
 		}
 		100% {
 			opacity: 1;
+			filter: brightness(1);
+			transform: scale(1);
 		}
 	}
 
 	.reflash-target {
-		animation: reflash 75ms ease-out;
+		animation: reflash 140ms ease-out;
 	}
 </style>
