@@ -16,12 +16,14 @@
 		getSlowestKeys,
 		type KeySummary,
 	} from '$lib/club/stats';
+	import { getInitialTheme, toggleTheme, type Theme } from '$lib/club/theme';
 	import type { GridConfig, LessonDef } from '$lib/club/types';
 
 	let rows = $state(DEFAULT_CONFIG.rows);
 	let cols = $state(DEFAULT_CONFIG.cols);
 	let keys = $state(DEFAULT_CONFIG.keys);
 	let showHistory = $state(true);
+	let theme = $state<Theme>('light');
 
 	let config = $derived<GridConfig>({ rows, cols, keys: keys.toUpperCase() });
 	let error = $derived(validateConfig(config));
@@ -65,6 +67,7 @@
 			}
 		}
 		updateKeySummaries();
+		theme = getInitialTheme();
 
 		const updateFullscreen = () => {
 			isFullscreen = !!document.fullscreenElement;
@@ -75,6 +78,10 @@
 			document.removeEventListener('fullscreenchange', updateFullscreen);
 		};
 	});
+
+	function handleToggleTheme() {
+		theme = toggleTheme(theme);
+	}
 
 	function toggleFullscreen() {
 		if (typeof document === 'undefined') return;
@@ -129,13 +136,23 @@
 				<img src={asset('/neru-dungeon-appicon.png')} alt="neru-dungeon logo" class="h-12 w-12 rounded-xl" />
 				<h1 class="text-4xl">neru-dungeon</h1>
 			</div>
-			<button
-				type="button"
-				class="border-2 border-foreground-600 px-4 py-2 text-xl outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
-				onclick={toggleFullscreen}
-			>
-				{isFullscreen ? 'exit fullscreen' : 'fullscreen'}
-			</button>
+			<div class="flex items-center gap-3">
+				<button
+					type="button"
+					class="border-2 border-foreground-600 bg-background-100 px-4 py-2 text-xl outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
+					onclick={handleToggleTheme}
+					aria-label="Toggle theme"
+				>
+					{theme}
+				</button>
+				<button
+					type="button"
+					class="border-2 border-foreground-600 px-4 py-2 text-xl outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
+					onclick={toggleFullscreen}
+				>
+					{isFullscreen ? 'exit fullscreen' : 'fullscreen'}
+				</button>
+			</div>
 		</div>
 
 		<!-- Config -->

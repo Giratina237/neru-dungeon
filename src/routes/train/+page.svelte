@@ -20,12 +20,14 @@
 		type SessionResult,
 		saveKeyAttempts,
 	} from '$lib/club/stats';
+	import { getInitialTheme, toggleTheme, type Theme } from '$lib/club/theme';
 	import type { GridConfig, LessonDef, Segment, Sequence } from '$lib/club/types';
 
 	let config = $state<GridConfig>(DEFAULT_CONFIG);
 	let lesson = $state<LessonDef | null>(null);
 	let sequences = $state<Sequence[]>([]);
 	let ready = $state(false);
+	let theme = $state<Theme>('light');
 
 	let segment = $state<Segment>('recall');
 	let taskIndex = $state(0);
@@ -133,6 +135,7 @@
 		const now = performance.now();
 		taskStartTime = now;
 		keyStartTime = now;
+		theme = getInitialTheme();
 
 		if (typeof document !== 'undefined' && !document.fullscreenElement) {
 			document.documentElement.requestFullscreen().catch(() => {});
@@ -147,6 +150,10 @@
 			document.removeEventListener('fullscreenchange', updateFullscreen);
 		};
 	});
+
+	function handleToggleTheme() {
+		theme = toggleTheme(theme);
+	}
 
 	function toggleFullscreen() {
 		if (typeof document === 'undefined') return;
@@ -329,7 +336,15 @@
 					<span class="text-foreground-400">{lesson.label}</span>
 				{/if}
 			</div>
-			<div class="flex justify-end">
+			<div class="flex justify-end gap-3">
+				<button
+					type="button"
+					class="border-2 border-foreground-600 bg-background-100 px-4 py-2 text-xl outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
+					onclick={handleToggleTheme}
+					aria-label="Toggle theme"
+				>
+					{theme}
+				</button>
 				<button
 					type="button"
 					class="border-2 border-foreground-600 px-4 py-2 text-xl outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
@@ -412,13 +427,23 @@
 					</button>
 				</div>
 
-				<button
-					type="button"
-					class="border-2 border-foreground-600 bg-background-100/95 px-3 py-1.5 text-base outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
-					onclick={toggleFullscreen}
-				>
-					{isFullscreen ? 'exit fullscreen' : 'fullscreen'}
-				</button>
+				<div class="flex items-center gap-2">
+					<button
+						type="button"
+						class="border-2 border-foreground-600 bg-background-100/95 px-3 py-1.5 text-base outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
+						onclick={handleToggleTheme}
+						aria-label="Toggle theme"
+					>
+						{theme}
+					</button>
+					<button
+						type="button"
+						class="border-2 border-foreground-600 bg-background-100/95 px-3 py-1.5 text-base outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
+						onclick={toggleFullscreen}
+					>
+						{isFullscreen ? 'exit fullscreen' : 'fullscreen'}
+					</button>
+				</div>
 			</div>
 		</div>
 

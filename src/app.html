@@ -7,7 +7,8 @@
 		<link rel="icon" href="%sveltekit.assets%/neru-dungeon-appicon.png" />
 		<script>
 			try {
-				const theme = (localStorage.getItem('neru-dungeon-theme') ?? localStorage.getItem('neru-dojo-theme')) === 'dark' ? 'dark' : 'light';
+				const saved = localStorage.getItem('neru-dungeon-theme') ?? localStorage.getItem('neru-dojo-theme');
+				const theme = saved ? (saved === 'dark' ? 'dark' : 'light') : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 				document.documentElement.classList.toggle('dark', theme === 'dark');
 				document.documentElement.dataset.theme = theme;
 			} catch {
