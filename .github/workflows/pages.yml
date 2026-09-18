@@ -36,7 +36,7 @@ jobs:
 
       - run: pnpm build
         env:
-          BASE_PATH: /neru-dojo
+          BASE_PATH: /${{ github.event.repository.name }}
 
       - run: touch build/.nojekyll
 

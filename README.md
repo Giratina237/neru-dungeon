@@ -1,8 +1,3 @@
-# Neru Dojo
+# Neru Dungeon
 
-A tiny game for practicing mouseless speed and reaction time with [Neru](https://github.com/y3owk1n/neru).
-
-Try it out here:
-
-https://bernatgene.github.io/neru-dojo/
-
+A fast, static, keyboard-driven spatial reaction trainer for [Neru](https://github.com/y3owk1n/neru) recursive grid navigation.

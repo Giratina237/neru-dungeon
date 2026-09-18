@@ -4,10 +4,10 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
-		<link rel="icon" href="%sveltekit.assets%/neru-appicon.png" />
+		<link rel="icon" href="%sveltekit.assets%/neru-dungeon-appicon.png" />
 		<script>
 			try {
-				const theme = localStorage.getItem('neru-dojo-theme') === 'dark' ? 'dark' : 'light';
+				const theme = (localStorage.getItem('neru-dungeon-theme') ?? localStorage.getItem('neru-dojo-theme')) === 'dark' ? 'dark' : 'light';
 				document.documentElement.classList.toggle('dark', theme === 'dark');
 				document.documentElement.dataset.theme = theme;
 			} catch {
