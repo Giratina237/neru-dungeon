@@ -14,6 +14,7 @@
 		clearKeyHistory,
 		getKeySummaries,
 		getSlowestKeys,
+		MAX_HISTORY_PER_KEY,
 		type KeySummary,
 	} from '$lib/club/stats';
 	import { getInitialTheme, toggleTheme, type Theme } from '$lib/club/theme';
@@ -261,10 +262,10 @@
 			</div>
 		{/if}
 
-		<!-- Key History Summary (Last 30 attempts) -->
+		<!-- Key History Summary (Last 10 presses) -->
 		<div class="flex flex-col gap-4 border-t-2 border-foreground-600 pt-6">
 			<div class="flex items-center justify-between">
-				<span class="text-xl font-medium">key history (last 30 attempts)</span>
+				<span class="text-xl font-medium">key history (last {MAX_HISTORY_PER_KEY} presses)</span>
 				{#if hasCompleteAttempts}
 					<button
 						type="button"

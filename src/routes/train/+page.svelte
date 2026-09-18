@@ -208,9 +208,12 @@
 				if (nextTask >= total) {
 					finishSession();
 				} else {
-					// Check if next task's target is in the exact same location as previous target
+					// Completed the answer: check if next task's target is in the exact same location
+					const currentRegion = isDoubleWordTest
+						? getTargetRegion(taskIndex, [currentSeq[currentSeq.length - 1] ?? ''])
+						: getTargetRegion(taskIndex, []);
 					const nextRegion = getTargetRegion(nextTask, []);
-					if (isSameRegion(lastTargetRegion, nextRegion)) {
+					if (isSameRegion(currentRegion, nextRegion)) {
 						reflashKey += 1;
 					}
 					lastTargetRegion = nextRegion;
@@ -221,14 +224,15 @@
 					keyStartTime = taskStartTime;
 				}
 			} else {
-				// Intermediate key inside the sequence (e.g. in intro lessons)
-				const nextRegion = getTargetRegion(taskIndex, nextInput);
-				if (isSameRegion(lastTargetRegion, nextRegion)) {
-					reflashKey += 1;
-				}
-				lastTargetRegion = nextRegion;
-
+				// Intermediate key inside the sequence (traversing layers: dot does not flash)
 				inputKeys = nextInput;
+				if (isDoubleWordTest) {
+					const nextRegion = getTargetRegion(taskIndex, nextInput);
+					if (isSameRegion(lastTargetRegion, nextRegion)) {
+						reflashKey += 1;
+					}
+					lastTargetRegion = nextRegion;
+				}
 			}
 		} else {
 			mistakeKey += 1;

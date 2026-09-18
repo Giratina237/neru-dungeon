@@ -1,5 +1,5 @@
 export const KEY_HISTORY_STORAGE_KEY = 'neru-dungeon-complete-grid-history';
-export const MAX_HISTORY_PER_KEY = 30;
+export const MAX_HISTORY_PER_KEY = 10;
 
 export type KeyAttempt = {
 	reactionTimeMs: number;
@@ -33,14 +33,20 @@ export function loadKeyHistory(): KeyHistoryMap {
 		const raw = localStorage.getItem(KEY_HISTORY_STORAGE_KEY);
 		if (!raw) return {};
 		const parsed = JSON.parse(raw);
-		return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+		if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+		for (const k of Object.keys(parsed)) {
+			if (Array.isArray(parsed[k]) && parsed[k].length > MAX_HISTORY_PER_KEY) {
+				parsed[k] = parsed[k].slice(-MAX_HISTORY_PER_KEY);
+			}
+		}
+		return parsed;
 	} catch {
 		return {};
 	}
 }
 
 /**
- * Appends new key attempts to localStorage, keeping at most 30 per key.
+ * Appends new key attempts to localStorage, keeping at most MAX_HISTORY_PER_KEY per key.
  */
 export function saveKeyAttempts(
 	attempts: Array<{ key: string; reactionTimeMs: number; correct: boolean }>,
@@ -71,7 +77,7 @@ export function saveKeyAttempts(
 }
 
 /**
- * Computes the last-30 summary for given keys (or all recorded keys).
+ * Computes the summary of the last 10 presses for given keys (or all recorded keys).
  */
 export function getKeySummaries(filterKeys?: readonly string[]): KeySummary[] {
 	const history = loadKeyHistory();

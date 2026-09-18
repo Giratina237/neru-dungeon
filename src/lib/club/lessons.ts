@@ -137,7 +137,8 @@ export const TWO_KEY_PATTERNS: readonly (readonly ('1' | '2')[])[] = [
 export function sequenceCount(lesson: LessonDef): number {
 	if (lesson.kind === 'intro') return TWO_KEY_PATTERNS.length; // 21 words
 	if (lesson.kind === 'review') return 10; // 5 depth-2 + 5 depth-3
-	if (lesson.kind === 'row' || lesson.kind === 'column' || lesson.kind === 'grid') return 20; // 10 depth-2 + 10 depth-3
+	if (lesson.kind === 'grid') return 2 * Math.max(10, lesson.keys.length);
+	if (lesson.kind === 'row' || lesson.kind === 'column') return 20; // 10 depth-2 + 10 depth-3
 	return 10;
 }
 
@@ -154,7 +155,10 @@ export function buildSessionSequences(lesson: LessonDef, config?: GridConfig): S
 		const allKeys = config ? config.keys.split('') : lesson.keys;
 		return buildReviewSequences(targetKey, allKeys);
 	}
-	// Row, column, or complete grid: 10 depth-2 + 10 depth-3 tests
+	if (lesson.kind === 'grid' || lesson.id === 'complete') {
+		return buildCompleteGridSequences([...lesson.keys]);
+	}
+	// Row or column: 10 depth-2 + 10 depth-3 tests
 	return depth2And3Tests([...lesson.keys], 10, 10);
 }
 
@@ -276,3 +280,99 @@ function shuffle<T>(arr: T[]): T[] {
 	}
 	return a;
 }
+
+/**
+ * Complete Grid sequences: tests all keys at least 5 times each
+ * (across approaching the quadrant and the answer).
+ * Generates N depth-2 tests and N depth-3 tests where N = max(10, keys.length).
+ */
+export function buildCompleteGridSequences(keys: string[]): Sequence[] {
+	const n = Math.max(10, keys.length);
+	const d2 = generateCompleteSequencesAtDepth(keys, 2, n);
+	const d3 = generateCompleteSequencesAtDepth(keys, Math.min(3, MAX_DEPTH), n);
+	return [...d2, ...d3];
+}
+
+function generateCompleteSequencesAtDepth(
+	keys: string[],
+	depth: number,
+	count: number,
+): Sequence[] {
+	if (keys.length === 0) return [];
+	if (keys.length === 1) {
+		return Array.from({ length: count }, () => Array(depth).fill(keys[0]));
+	}
+
+	const pool: string[] = [];
+	for (let d = 0; d < depth; d++) {
+		pool.push(...keys);
+	}
+	while (pool.length < count * depth) {
+		const needed = count * depth - pool.length;
+		if (needed >= keys.length) pool.push(...keys);
+		else pool.push(...shuffle(keys).slice(0, needed));
+	}
+	pool.length = count * depth;
+
+	for (let attempt = 0; attempt < 100; attempt++) {
+		const remaining = shuffle(pool);
+		const seqs: Sequence[] = [];
+		let failed = false;
+
+		for (let i = 0; i < count; i++) {
+			const lastStr = i > 0 ? seqs[i - 1]?.join('') : null;
+
+			if (remaining.slice(0, depth).join('') === lastStr) {
+				let swapped = false;
+				for (let j = depth; j < remaining.length; j++) {
+					for (let p = 0; p < depth; p++) {
+						if (remaining[j] !== remaining[p]) {
+							[remaining[p], remaining[j]] = [remaining[j], remaining[p]];
+							if (remaining.slice(0, depth).join('') !== lastStr) {
+								swapped = true;
+								break;
+							}
+							[remaining[p], remaining[j]] = [remaining[j], remaining[p]];
+						}
+					}
+					if (swapped) break;
+				}
+				if (!swapped) {
+					for (let k = 0; k < seqs.length - 1; k++) {
+						const cand = remaining.slice(0, depth);
+						const prevK = k > 0 ? seqs[k - 1]?.join('') : '';
+						const nextK = seqs[k + 1]?.join('');
+						if (
+							cand.join('') !== prevK &&
+							cand.join('') !== nextK &&
+							seqs[k]?.join('') !== lastStr
+						) {
+							const temp = seqs[k];
+							seqs[k] = cand;
+							seqs.push(temp);
+							swapped = true;
+							break;
+						}
+					}
+					if (!swapped) {
+						failed = true;
+						break;
+					}
+				}
+			}
+
+			if (seqs.length <= i) {
+				seqs.push(remaining.splice(0, depth));
+			}
+		}
+
+		if (!failed) return seqs;
+	}
+
+	const result: Sequence[] = [];
+	for (let i = 0; i < count; i++) {
+		result.push(pool.slice(i * depth, (i + 1) * depth));
+	}
+	return result;
+}
+

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getSlowestKeys, type KeySummary } from './stats';
+	import { getSlowestKeys, MAX_HISTORY_PER_KEY, type KeySummary } from './stats';
 	import type { GridConfig } from './types';
 
 	let {
@@ -94,7 +94,7 @@
 				hasData,
 				title: key
 					? hasData
-						? `${key}: ${summary.avgReactionMs}ms, ${summary.accuracyPct}% acc (${summary.attempts}/30) — click to review`
+						? `${key}: ${summary.avgReactionMs}ms, ${summary.accuracyPct}% acc (${summary.attempts}/${MAX_HISTORY_PER_KEY}) — click to review`
 						: `${key}: no attempts yet`
 					: 'empty cell',
 			});
@@ -132,15 +132,15 @@
 
 		<!-- rgrid-style board -->
 		<div
-			class="relative grid w-full aspect-video min-h-[200px] max-h-[380px] border-2 border-foreground-600 bg-background-100 overflow-hidden"
-			style="grid-template-columns: repeat({config.cols}, 1fr); grid-template-rows: repeat({config.rows}, 1fr);"
+			class="relative grid w-full border-2 border-foreground-600 bg-background-100"
+			style="grid-template-columns: repeat({config.cols}, 1fr); grid-template-rows: repeat({config.rows}, minmax(4.25rem, 1fr));"
 		>
 		{#each gridCells as cell (cell.index)}
 			{@const hasBottomBorder = cell.row < config.rows - 1}
 			{@const hasRightBorder = cell.col < config.cols - 1}
 			<button
 				type="button"
-				class="relative flex flex-col items-center justify-center p-2 outline-none select-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-highlight-600"
+				class="relative flex min-h-[4.25rem] sm:min-h-[4.75rem] flex-col items-center justify-center p-1.5 sm:p-2 outline-none select-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-highlight-600"
 				class:border-b={hasBottomBorder}
 				class:border-r={hasRightBorder}
 				class:border-foreground-600={hasBottomBorder || hasRightBorder}
@@ -165,13 +165,13 @@
 					</span>
 					{#if cell.hasData && cell.summary}
 						<div
-							class="mt-2 flex flex-col items-center gap-0.5 text-center leading-tight drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]"
+							class="mt-1 sm:mt-1.5 flex flex-col items-center gap-0.5 text-center leading-tight drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]"
 						>
 							<span class="text-xs sm:text-sm font-semibold">{cell.summary.avgReactionMs}ms</span>
 							<span class="text-[11px] sm:text-xs opacity-90">{cell.summary.accuracyPct}%</span>
 						</div>
 					{:else}
-						<span class="mt-2 text-xs opacity-60">—</span>
+						<span class="mt-1 sm:mt-1.5 text-xs opacity-60">—</span>
 					{/if}
 				{/if}
 			</button>
