@@ -32,6 +32,7 @@
 	let inputKeys = $state<string[]>([]);
 	let done = $state(false);
 	let reflashKey = $state(0);
+	let mistakeKey = $state(0);
 	let isFullscreen = $state(false);
 
 	// Timing and metrics
@@ -196,11 +197,10 @@
 				}
 			}
 		} else {
+			mistakeKey += 1;
 			keyAttempts.push({ key: expected, reactionTimeMs, correct: false });
 			missPresses++;
-			inputKeys = [];
-			taskStartTime = performance.now();
-			keyStartTime = taskStartTime;
+			keyStartTime = now;
 		}
 	}
 
@@ -261,6 +261,7 @@
 		taskIndex = 0;
 		inputKeys = [];
 		reflashKey = 0;
+		mistakeKey = 0;
 		done = false;
 		correctPresses = 0;
 		missPresses = 0;
@@ -397,5 +398,29 @@
 				{/each}
 			</div>
 		</div>
+
+		<!-- Subtle Screen Mistake Flash -->
+		{#if mistakeKey > 0}
+			{#key mistakeKey}
+				<div class="pointer-events-none fixed inset-0 z-50 mistake-flash"></div>
+			{/key}
+		{/if}
 	</div>
 {/if}
+
+<style>
+	@keyframes mistakeFlash {
+		0% {
+			background-color: rgba(220, 38, 38, 0.18);
+			box-shadow: inset 0 0 0 4px rgba(220, 38, 38, 0.6);
+		}
+		100% {
+			background-color: transparent;
+			box-shadow: inset 0 0 0 0 transparent;
+		}
+	}
+
+	.mistake-flash {
+		animation: mistakeFlash 180ms ease-out forwards;
+	}
+</style>
