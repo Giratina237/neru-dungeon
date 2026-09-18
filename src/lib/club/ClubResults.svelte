@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { formatElapsed } from './time';
 	import KeyHistoryGrid from './KeyHistoryGrid.svelte';
 	import type { KeySummary, SessionResult } from './stats';
@@ -95,7 +96,7 @@
 				</button>
 			{/if}
 			<a
-				href="/club"
+				href="{base}/"
 				class="border-2 border-foreground-600 px-6 py-3 text-xl outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
 			>
 				all lessons

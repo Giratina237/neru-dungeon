@@ -113,8 +113,14 @@
 </script>
 
 <div class="flex flex-col gap-3 font-mono text-foreground-600">
-	<!-- Legend header -->
-	{#if activeSummaries.length > 0}
+	{#if activeSummaries.length === 0}
+		<div class="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-foreground-600 p-8 text-center bg-background-100">
+			<p class="text-base text-foreground-400">
+				try playing complete grid to get key history analysis
+			</p>
+		</div>
+	{:else}
+		<!-- Legend header -->
 		<div class="flex items-center justify-end gap-2 text-xs">
 			<span class="text-foreground-400">&gt; 1s (slowest)</span>
 			<div
@@ -123,13 +129,12 @@
 			></div>
 			<span class="text-foreground-400">&lt; 400ms (fastest)</span>
 		</div>
-	{/if}
 
-	<!-- rgrid-style board -->
-	<div
-		class="relative grid w-full aspect-video min-h-[200px] max-h-[380px] border-2 border-foreground-600 bg-background-100 overflow-hidden"
-		style="grid-template-columns: repeat({config.cols}, 1fr); grid-template-rows: repeat({config.rows}, 1fr);"
-	>
+		<!-- rgrid-style board -->
+		<div
+			class="relative grid w-full aspect-video min-h-[200px] max-h-[380px] border-2 border-foreground-600 bg-background-100 overflow-hidden"
+			style="grid-template-columns: repeat({config.cols}, 1fr); grid-template-rows: repeat({config.rows}, 1fr);"
+		>
 		{#each gridCells as cell (cell.index)}
 			{@const hasBottomBorder = cell.row < config.rows - 1}
 			{@const hasRightBorder = cell.col < config.cols - 1}
@@ -213,4 +218,5 @@
 			</button>
 		{/if}
 	</div>
+	{/if}
 </div>

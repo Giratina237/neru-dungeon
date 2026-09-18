@@ -1,5 +1,4 @@
-export const KEY_HISTORY_STORAGE_KEY = 'neru-dungeon-key-history';
-export const LEGACY_KEY_HISTORY_STORAGE_KEY = 'neru-club-key-history';
+export const KEY_HISTORY_STORAGE_KEY = 'neru-dungeon-complete-grid-history';
 export const MAX_HISTORY_PER_KEY = 30;
 
 export type KeyAttempt = {
@@ -26,14 +25,12 @@ export type SessionResult = {
 };
 
 /**
- * Loads the raw key attempt history from localStorage.
+ * Loads the raw key attempt history from localStorage (only complete grid attempts).
  */
 export function loadKeyHistory(): KeyHistoryMap {
 	if (typeof window === 'undefined') return {};
 	try {
-		const raw =
-			localStorage.getItem(KEY_HISTORY_STORAGE_KEY) ??
-			localStorage.getItem(LEGACY_KEY_HISTORY_STORAGE_KEY);
+		const raw = localStorage.getItem(KEY_HISTORY_STORAGE_KEY);
 		if (!raw) return {};
 		const parsed = JSON.parse(raw);
 		return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
@@ -116,6 +113,8 @@ export function getKeySummaries(filterKeys?: readonly string[]): KeySummary[] {
 export function clearKeyHistory(): void {
 	if (typeof window === 'undefined') return;
 	localStorage.removeItem(KEY_HISTORY_STORAGE_KEY);
+	localStorage.removeItem('neru-dungeon-key-history');
+	localStorage.removeItem('neru-club-key-history');
 }
 
 /**

@@ -21,7 +21,7 @@
 	let rows = $state(DEFAULT_CONFIG.rows);
 	let cols = $state(DEFAULT_CONFIG.cols);
 	let keys = $state(DEFAULT_CONFIG.keys);
-	let showHistory = $state(false);
+	let showHistory = $state(true);
 
 	let config = $derived<GridConfig>({ rows, cols, keys: keys.toUpperCase() });
 	let error = $derived(validateConfig(config));
@@ -30,6 +30,9 @@
 
 	let keySummaries = $state<KeySummary[]>([]);
 	let isFullscreen = $state(false);
+	let hasCompleteAttempts = $derived(
+		keySummaries.some((s) => s.attempts > 0 && config.keys.toUpperCase().includes(s.key.toUpperCase())),
+	);
 	let slowestKeys = $derived(getSlowestKeys(keySummaries, 5));
 
 	let lessons = $derived(isValid ? buildLessonList(config) : []);
@@ -242,10 +245,10 @@
 		{/if}
 
 		<!-- Key History Summary (Last 30 attempts) -->
-		{#if keySummaries.some((s) => s.attempts > 0)}
-			<div class="flex flex-col gap-4 border-t-2 border-foreground-600 pt-6">
-				<div class="flex items-center justify-between">
-					<span class="text-xl font-medium">key history (last 30 attempts)</span>
+		<div class="flex flex-col gap-4 border-t-2 border-foreground-600 pt-6">
+			<div class="flex items-center justify-between">
+				<span class="text-xl font-medium">key history (last 30 attempts)</span>
+				{#if hasCompleteAttempts}
 					<button
 						type="button"
 						class="text-sm text-foreground-400 underline outline-none hover:text-foreground-600 focus-visible:text-highlight-600"
@@ -253,16 +256,29 @@
 					>
 						{showHistory ? 'hide' : 'show'}
 					</button>
-				</div>
-				{#if showHistory}
-					<KeyHistoryGrid
-						{config}
-						{keySummaries}
-						onSelectKey={startReview}
-						onClearHistory={handleClearHistory}
-					/>
 				{/if}
 			</div>
-		{/if}
+			{#if !hasCompleteAttempts}
+				<div class="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-foreground-600 p-8 text-center bg-background-100">
+					<p class="text-base text-foreground-400">
+						try playing complete grid to get key history analysis
+					</p>
+					<button
+						type="button"
+						class="border-2 border-foreground-600 px-4 py-2 text-base outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
+						onclick={() => startLesson('complete')}
+					>
+						play complete grid
+					</button>
+				</div>
+			{:else if showHistory}
+				<KeyHistoryGrid
+					{config}
+					{keySummaries}
+					onSelectKey={startReview}
+					onClearHistory={handleClearHistory}
+				/>
+			{/if}
+		</div>
 	</div>
 </main>

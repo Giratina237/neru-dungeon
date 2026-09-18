@@ -207,8 +207,10 @@
 	function finishSession() {
 		done = true;
 
-		// Save key attempts to persistent rolling window
-		saveKeyAttempts(keyAttempts);
+		// Save key attempts to persistent rolling window only for complete grid
+		if (lesson?.id === 'complete' || lesson?.kind === 'grid') {
+			saveKeyAttempts(keyAttempts);
+		}
 		keySummaries = getKeySummaries();
 
 		const totalWords = wordDurations.length;
