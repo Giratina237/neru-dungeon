@@ -158,6 +158,15 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			if (typeof document !== 'undefined' && document.fullscreenElement) {
+				document.exitFullscreen().catch(() => {});
+			} else {
+				goto(`${base}/`);
+			}
+			return;
+		}
+
 		// Ctrl+K or Cmd+K toggles guided/recall mode at any time
 		if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
 			event.preventDefault();
@@ -355,68 +364,82 @@
 			/>
 		</div>
 
-		<!-- Top HUD Overlay -->
-		<div class="pointer-events-none absolute top-4 inset-x-4 flex items-center justify-between z-50">
-			<a
-				href="{base}/"
-				class="pointer-events-auto border-2 border-foreground-600 bg-background-100/95 px-3 py-1.5 text-base outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
-			>
-				← back
-			</a>
+		<!-- Guided Sequence Prompt (clean floating text, no blocking background) -->
+		{#if segment === 'guided'}
+			<div class="pointer-events-none absolute top-4 inset-x-0 flex justify-center z-30">
+				<div class="flex items-center gap-3 text-3xl font-bold tracking-wider select-none text-foreground-600/90">
+					{#each currentSeq as key, i (i)}
+						{#if i > 0}<span class="text-foreground-300">→</span>{/if}
+						<span
+							class:text-highlight-600={i === inputKeys.length}
+							class:text-foreground-300={i < inputKeys.length}
+						>
+							{key}
+						</span>
+					{/each}
+				</div>
+			</div>
+		{/if}
 
-			<div class="pointer-events-auto flex items-center gap-4 border-2 border-foreground-600 bg-background-100/95 px-4 py-1.5 shadow-sm">
-				{#if segment === 'guided'}
-					<div class="flex items-center gap-3 text-2xl font-bold">
-						{#each currentSeq as key, i (i)}
-							{#if i > 0}<span class="text-foreground-300">→</span>{/if}
-							<span
-								class:text-highlight-600={i === inputKeys.length}
-								class:text-foreground-300={i < inputKeys.length}
-							>
-								{key}
-							</span>
-						{/each}
-					</div>
-					<span class="text-foreground-300">|</span>
-				{/if}
-				<span class="text-base text-foreground-400">
-					{Math.min(taskIndex + 1, total)}/{total}
-				</span>
+		<!-- Top Controls: in fullscreen, completely hidden unless hovering at the top edge -->
+		<div class="group absolute top-0 inset-x-0 h-16 z-50 pointer-events-none flex items-start justify-between p-4">
+			<div
+				class="w-full flex items-center justify-between transition-opacity duration-150"
+				class:opacity-100={!isFullscreen}
+				class:opacity-0={isFullscreen}
+				class:group-hover:opacity-100={isFullscreen}
+				class:pointer-events-auto={!isFullscreen}
+				class:group-hover:pointer-events-auto={isFullscreen}
+			>
+				<a
+					href="{base}/"
+					class="border-2 border-foreground-600 bg-background-100/95 px-3 py-1.5 text-base outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
+				>
+					← back
+				</a>
+
+				<div class="flex items-center gap-4 border-2 border-foreground-600 bg-background-100/95 px-4 py-1.5 shadow-sm">
+					<span class="text-base text-foreground-400">
+						{Math.min(taskIndex + 1, total)}/{total}
+					</span>
+					<button
+						type="button"
+						class="text-xs text-foreground-400 underline outline-none hover:text-foreground-600"
+						onclick={toggleSegment}
+						title="Ctrl+K to swap"
+					>
+						{segment} (ctrl+k)
+					</button>
+				</div>
+
 				<button
 					type="button"
-					class="text-xs text-foreground-400 underline outline-none hover:text-foreground-600"
-					onclick={toggleSegment}
-					title="Ctrl+K to swap"
+					class="border-2 border-foreground-600 bg-background-100/95 px-3 py-1.5 text-base outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
+					onclick={toggleFullscreen}
 				>
-					{segment} (ctrl+k)
+					{isFullscreen ? 'exit fullscreen' : 'fullscreen'}
 				</button>
 			</div>
-
-			<button
-				type="button"
-				class="pointer-events-auto border-2 border-foreground-600 bg-background-100/95 px-3 py-1.5 text-base outline-none hover:bg-foreground-600 hover:text-background-100 focus-visible:border-highlight-600"
-				onclick={toggleFullscreen}
-			>
-				{isFullscreen ? 'exit fullscreen' : 'fullscreen'}
-			</button>
 		</div>
 
-		<!-- Bottom Input Slots Overlay -->
-		<div class="pointer-events-none absolute bottom-4 inset-x-0 flex justify-center z-50">
-			<div class="flex items-center gap-3 border-2 border-foreground-600 bg-background-100/95 px-4 py-1.5 shadow-sm">
-				{#each currentSeq as _key, i (i)}
-					<div
-						class="flex h-9 w-9 items-center justify-center border-2 text-xl font-bold"
-						class:border-highlight-600={i < inputKeys.length}
-						class:text-highlight-600={i < inputKeys.length}
-						class:border-foreground-300={i >= inputKeys.length}
-						class:text-foreground-300={i >= inputKeys.length}
-					>
-						{i < inputKeys.length ? inputKeys[i] : '·'}
-					</div>
-				{/each}
+		<!-- Bottom Input Slots Overlay (hidden in fullscreen so bottom cells are never obscured) -->
+		{#if !isFullscreen}
+			<div class="pointer-events-none absolute bottom-4 inset-x-0 flex justify-center z-50">
+				<div class="flex items-center gap-3 border-2 border-foreground-600 bg-background-100/95 px-4 py-1.5 shadow-sm">
+					{#each currentSeq as _key, i (i)}
+						<div
+							class="flex h-9 w-9 items-center justify-center border-2 text-xl font-bold"
+							class:border-highlight-600={i < inputKeys.length}
+							class:text-highlight-600={i < inputKeys.length}
+							class:border-foreground-300={i >= inputKeys.length}
+							class:text-foreground-300={i >= inputKeys.length}
+						>
+							{i < inputKeys.length ? inputKeys[i] : '·'}
+						</div>
+					{/each}
+				</div>
 			</div>
-		</div>
+		{/if}
 
 		<!-- Subtle Screen Mistake Flash -->
 		{#if mistakeKey > 0}
