@@ -18,7 +18,7 @@ export type KeySummary = {
 export type SessionResult = {
 	totalWords: number;
 	totalTimeMs: number;
-	avgReactionTimePerWordMs: number;
+	avgReactionTimePerKeyMs: number;
 	accuracyPct: number;
 	correctPresses: number;
 	misses: number;

@@ -252,16 +252,17 @@
 
 		const totalWords = wordDurations.length;
 		const totalTimeMs = wordDurations.reduce((a, b) => a + b, 0);
-		const avgReactionTimePerWordMs =
-			totalWords > 0 ? Math.round(totalTimeMs / totalWords) : 0;
 		const totalPresses = correctPresses + missPresses;
+		const totalKeyRt = keyAttempts.reduce((sum, a) => sum + a.reactionTimeMs, 0);
+		const avgReactionTimePerKeyMs =
+			keyAttempts.length > 0 ? Math.round(totalKeyRt / keyAttempts.length) : 0;
 		const accuracyPct =
 			totalPresses > 0 ? Math.round((correctPresses / totalPresses) * 100) : 100;
 
 		sessionResult = {
 			totalWords,
 			totalTimeMs,
-			avgReactionTimePerWordMs,
+			avgReactionTimePerKeyMs,
 			accuracyPct,
 			correctPresses,
 			misses: missPresses,

@@ -38,8 +38,8 @@
 		<!-- Current Test Metrics -->
 		<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 py-2">
 			<div class="flex flex-col gap-1 border-2 border-foreground-600 p-3">
-				<span class="text-sm text-foreground-400">reaction / word</span>
-				<span class="text-2xl font-bold">{result.avgReactionTimePerWordMs} ms</span>
+				<span class="text-sm text-foreground-400">reaction / key</span>
+				<span class="text-2xl font-bold">{result.avgReactionTimePerKeyMs} ms</span>
 			</div>
 			<div class="flex flex-col gap-1 border-2 border-foreground-600 p-3">
 				<span class="text-sm text-foreground-400">accuracy</span>
