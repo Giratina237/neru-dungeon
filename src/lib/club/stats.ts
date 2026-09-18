@@ -114,6 +114,51 @@ export function getKeySummaries(filterKeys?: readonly string[]): KeySummary[] {
 }
 
 /**
+ * Computes KeySummary list directly from an array of session key attempts
+ * (showing stats for the test alone).
+ */
+export function computeSessionKeySummaries(
+	attempts: readonly { key: string; reactionTimeMs: number; correct: boolean }[],
+	allKeys?: readonly string[],
+): KeySummary[] {
+	const keyMap: Record<string, { totalRt: number; correct: number; count: number }> = {};
+
+	for (const a of attempts) {
+		const upper = a.key.toUpperCase();
+		if (!keyMap[upper]) {
+			keyMap[upper] = { totalRt: 0, correct: 0, count: 0 };
+		}
+		keyMap[upper].totalRt += a.reactionTimeMs;
+		keyMap[upper].count += 1;
+		if (a.correct) {
+			keyMap[upper].correct += 1;
+		}
+	}
+
+	const keysToInclude = allKeys
+		? allKeys.map((k) => k.toUpperCase())
+		: Object.keys(keyMap).sort();
+
+	return keysToInclude.map((key) => {
+		const stat = keyMap[key];
+		if (!stat || stat.count === 0) {
+			return {
+				key,
+				attempts: 0,
+				avgReactionMs: 0,
+				accuracyPct: 0,
+			};
+		}
+		return {
+			key,
+			attempts: stat.count,
+			avgReactionMs: Math.round(stat.totalRt / stat.count),
+			accuracyPct: Math.round((stat.correct / stat.count) * 100),
+		};
+	});
+}
+
+/**
  * Clears stored key history.
  */
 export function clearKeyHistory(): void {

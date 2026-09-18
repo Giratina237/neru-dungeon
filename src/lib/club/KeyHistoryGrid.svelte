@@ -5,11 +5,15 @@
 	let {
 		config,
 		keySummaries,
+		maxAttempts,
+		emptyMessage = 'try playing complete grid to get key history analysis',
 		onSelectKey,
 		onClearHistory,
 	}: {
 		config: GridConfig;
 		keySummaries: KeySummary[];
+		maxAttempts?: number;
+		emptyMessage?: string;
 		onSelectKey?: (key: string) => void;
 		onClearHistory?: () => void;
 	} = $props();
@@ -94,8 +98,10 @@
 				hasData,
 				title: key
 					? hasData
-						? `${key}: ${summary.avgReactionMs}ms, ${summary.accuracyPct}% acc (${summary.attempts}/${MAX_HISTORY_PER_KEY}) — click to review`
-						: `${key}: no attempts yet`
+						? `${key}: ${summary.avgReactionMs}ms, ${summary.accuracyPct}% acc (${summary.attempts} ${summary.attempts === 1 ? 'press' : 'presses'}${maxAttempts ? `/${maxAttempts}` : ''}) — click to review`
+						: maxAttempts
+							? `${key}: no attempts yet`
+							: `${key}: not tested in this test`
 					: 'empty cell',
 			});
 		}
@@ -116,7 +122,7 @@
 	{#if activeSummaries.length === 0}
 		<div class="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-foreground-600 p-8 text-center bg-background-100">
 			<p class="text-base text-foreground-400">
-				try playing complete grid to get key history analysis
+				{emptyMessage}
 			</p>
 		</div>
 	{:else}
@@ -182,7 +188,7 @@
 	{#if slowestKeys.length > 0}
 		<div class="flex flex-col gap-2 border-2 border-foreground-600 bg-background-100 p-3">
 			<div class="flex items-center justify-between text-xs text-foreground-400">
-				<span class="font-medium uppercase tracking-wider text-foreground-600">top {slowestKeys.length} slowest keys</span>
+				<span class="font-medium uppercase tracking-wider text-foreground-600">top {slowestKeys.length} slowest {slowestKeys.length === 1 ? 'key' : 'keys'}</span>
 				{#if onSelectKey}
 					<span>click to drill</span>
 				{/if}

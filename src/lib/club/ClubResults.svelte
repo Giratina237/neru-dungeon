@@ -2,7 +2,7 @@
 	import { base } from '$app/paths';
 	import { formatElapsed } from './time';
 	import KeyHistoryGrid from './KeyHistoryGrid.svelte';
-	import { MAX_HISTORY_PER_KEY, type KeySummary, type SessionResult } from './stats';
+	import type { KeySummary, SessionResult } from './stats';
 	import type { GridConfig, Segment } from './types';
 
 	let {
@@ -55,10 +55,10 @@
 			</div>
 		</div>
 
-		<!-- Key Summary (Last 10 presses) -->
+		<!-- Key Summary (This test) -->
 		<div class="flex flex-col gap-3">
 			<div class="flex items-center justify-between">
-				<span class="text-xl font-medium">key history (last {MAX_HISTORY_PER_KEY} presses)</span>
+				<span class="text-xl font-medium">key stats (this test)</span>
 				<button
 					type="button"
 					class="text-sm text-foreground-400 underline outline-none hover:text-foreground-600 focus-visible:text-highlight-600"
@@ -72,6 +72,7 @@
 				<KeyHistoryGrid
 					{config}
 					{keySummaries}
+					emptyMessage="no key stats for this test"
 					onSelectKey={onStartReview}
 				/>
 			{/if}

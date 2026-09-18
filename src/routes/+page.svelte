@@ -293,6 +293,7 @@
 				<KeyHistoryGrid
 					{config}
 					{keySummaries}
+					maxAttempts={MAX_HISTORY_PER_KEY}
 					onSelectKey={startReview}
 					onClearHistory={handleClearHistory}
 				/>

@@ -14,8 +14,7 @@
 	} from '$lib/club/grid';
 	import { buildLessonList, buildSessionSequences } from '$lib/club/lessons';
 	import {
-		clearKeyHistory,
-		getKeySummaries,
+		computeSessionKeySummaries,
 		type KeySummary,
 		type SessionResult,
 		saveKeyAttempts,
@@ -249,7 +248,7 @@
 		if (lesson?.id === 'complete' || lesson?.kind === 'grid') {
 			saveKeyAttempts(keyAttempts);
 		}
-		keySummaries = getKeySummaries();
+		keySummaries = computeSessionKeySummaries(keyAttempts, config.keys.split(''));
 
 		const totalWords = wordDurations.length;
 		const totalTimeMs = wordDurations.reduce((a, b) => a + b, 0);
@@ -267,11 +266,6 @@
 			correctPresses,
 			misses: missPresses,
 		};
-	}
-
-	function handleClearHistory() {
-		clearKeyHistory();
-		keySummaries = getKeySummaries();
 	}
 
 	function startReview(key: string) {
@@ -366,7 +360,6 @@
 			onRestart={() => restart()}
 			onStartRecall={() => restart(segment === 'guided' ? 'recall' : 'guided')}
 			onStartReview={startReview}
-			onClearHistory={handleClearHistory}
 		/>
 	</main>
 {:else}
